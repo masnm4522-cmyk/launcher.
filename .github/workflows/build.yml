@@ -5,7 +5,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: unzip -q SampLauncher.zip
+      - name: Unzip
+        run: |
+          mkdir proj
+          unzip -q SampLauncher.zip -d proj
+          ls -R proj | head -40
+          F=$(find proj -name settings.gradle.kts | head -1)
+          test -n "$F" || { echo "settings.gradle.kts not found"; exit 1; }
+          echo "PROJ_DIR=$(dirname "$F")" >> $GITHUB_ENV
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -13,8 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
-      - run: gradle assembleDebug -p SampLauncher
+      - run: gradle assembleDebug -p "$PROJ_DIR"
       - uses: actions/upload-artifact@v4
         with:
           name: launcher-apk
-          path: SampLauncher/app/build/outputs/apk/debug/*.apk
+          path: proj/**/outputs/apk/debug/*.apk
