@@ -8,8 +8,8 @@ jobs:
       - name: Unzip
         run: |
           mkdir proj
-          unzip -q SampLauncher.zip -d proj
-          ls -R proj | head -40
+          unzip -q "$(ls *.zip | head -1)" -d proj
+          find proj -name DataManager.kt -delete
           F=$(find proj -name settings.gradle.kts | head -1)
           test -n "$F" || { echo "settings.gradle.kts not found"; exit 1; }
           echo "PROJ_DIR=$(dirname "$F")" >> $GITHUB_ENV
